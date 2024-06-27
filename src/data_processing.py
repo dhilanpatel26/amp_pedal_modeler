@@ -4,6 +4,7 @@ import torchaudio
 import torch
 import numpy as np
 from pathlib import Path
+from typing import Dict
 
 CURRENT_FILE = Path(__file__).resolve()
 SRC_DIR = CURRENT_FILE.parent
@@ -24,11 +25,12 @@ def segment_audio(input_path, output_dir, segment_length=1024, overlap=0):
         os.makedirs(output_dir)
 
     # Load AIFF file using pydub
-    audio = AudioSegment.from_file(input_path)
+    audio: AudioSegment = AudioSegment.from_file(input_path)
 
-    sample_rate = audio.frame_rate
     num_samples = len(audio)
     step_size = segment_length - overlap
+
+    waveforms: Dict[np.array]
 
     for i in range(0, num_samples - segment_length + 1, step_size):
         segment = audio[i:i + segment_length]
@@ -41,6 +43,16 @@ def segment_audio(input_path, output_dir, segment_length=1024, overlap=0):
 
         # Export segment using pydub
         segment.export(segment_path, format='wav')
+
+def get_numpy_waveform(audio_segment: AudioSegment):
+    if audio_segment.channels == 2:  # stereo sound
+        audio_segment.set_channels(1)  # convert to mono
+    waveform = np.array(audio_segment.get_array_of_samples())
+    waveform = standard_normalization(waveform)
+    return waveform, audio_segment.frame_rate  # sampling rate should be 48000 Hz
+    
+def standard_normalization(waveform):
+    return waveform / np.max(np.abs(waveform))
 
 
 # Temporary usage -- will be moved to main.py
