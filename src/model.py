@@ -4,37 +4,28 @@ import torch.nn.functional as F
 
 
 class GuitarAmpSimulator(nn.Module):
-    def __init__(self):
+    def __init__(self, input_length):
         super(GuitarAmpSimulator, self).__init__()
-        # Define the first convolutional layer
-        self.conv1 = nn.Conv1d(in_channels=1, out_channels=16, kernel_size=3, stride=1, padding=1)
-        # Define the second convolutional layer
-        self.conv2 = nn.Conv1d(in_channels=16, out_channels=32, kernel_size=3, stride=1, padding=1)
-        # Define a fully connected layer
-        self.fc1 = nn.Linear(in_features=32*256, out_features=1024)
-        # Define the output layer
-        self.fc2 = nn.Linear(in_features=1024, out_features=256)
+        # defining layers
+        self.conv1 = nn.Conv1d(in_channels=1, out_channels=32, kernel_size=3, padding=1)
+        self.conv2 = nn.Conv1d(in_channels=32, out_channels=64, kernel_size=3, padding=1)
+        self.conv3 = nn.Conv1d(in_channels=64, out_channels=128, kernel_size=3, padding=1)
+        self.pool = nn.MaxPool1d(kernel_size=2)
+        self.flatten = nn.Flatten()
+        # dynamically sizing fully connected layers to match input length
+        self.fc1 = nn.Linear(128 * (input_length // 8), 512)
+        self.fc2 = nn.Linear(512, input_length)
 
     def forward(self, x):
-        # Apply the first convolutional layer followed by a ReLU activation function
-        x = F.relu(self.conv1(x))
-        # Apply the second convolutional layer followed by a ReLU activation function
-        x = F.relu(self.conv2(x))
-        # Flatten the tensor from [batch_size, channels, length] to [batch_size, channels*length]
-        x = x.view(x.size(0), -1)
-        # Apply the first fully connected layer followed by a ReLU activation function
-        x = F.relu(self.fc1(x))
-        # Apply the output layer
+        # apply convolutional layers with ReLU activation and max pooling
+        x = self.pool(F.relu(self.conv1(x)))
+        x = self.pool(F.relu(self.conv2(x)))
+        x = self.pool(F.relu(self.conv3(x)))
+        # flatten tensor
+        x = self.flatten(x)
+        # apply fully connected layers with ReLU activation
+        x  = F.relu(self.fc1(x))
+        # output layer, linear activation
         x = self.fc2(x)
         return x
-
-# Example usage
-if __name__ == "__main__":
-    # Create a random tensor with shape (batch_size, channels, length)
-    input_signal = torch.randn(10, 1, 256)
-    # Create an instance of the GuitarAmpSimulator model
-    model = GuitarAmpSimulator()
-    # Get the output of the model
-    output_signal = model(input_signal)
-    # Print the shape of the output tensor
-    print(output_signal.shape)  # Should be [10, 256]
+    
