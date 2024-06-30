@@ -97,5 +97,3 @@ class DataProcessor:
     def create_and_save_waveforms_dict(segmented_clean_dir, segmented_fx_dir, save_path):
         waveforms = DataProcessor.generate_waveform_dict(segmented_clean_dir, segmented_fx_dir)
         DataProcessor.save_waveform_pairs(waveforms, save_path)
-
-        

@@ -44,5 +44,9 @@ class Driver:
         DataManager.split_and_save_data(train_dir, val_dir, test_dir)
 
 if __name__ == "__main__":
-    driver = Driver(latency=10)
-    driver.main()
+    driver = Driver(latency=10)  # system calculates sample length based on target latency
+    driver.main()  # no loss in data resolution
+
+    # data waveforms are correctly set up as arrays of len 480
+    # training_waveforms = DataProcessor.load_waveform_pairs(str(DATA_DIR / "processed/train/train.npz"))
+    # print(len(training_waveforms[list(training_waveforms.keys())[-1]]["clean"]))
