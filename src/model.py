@@ -4,7 +4,7 @@ import torch.nn.functional as F
 
 
 class GuitarAmpSimulator(nn.Module):
-    def __init__(self, input_length):
+    def __init__(self, input_length=480):
         super(GuitarAmpSimulator, self).__init__()
         # defining layers
         self.conv1 = nn.Conv1d(in_channels=1, out_channels=32, kernel_size=3, padding=1)
