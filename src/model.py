@@ -3,12 +3,6 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 
-# Q: How does the GuitarAmpSimulator model work?
-# A: The GuitarAmpSimulator model is a convolutional neural network (CNN) that takes a 1D input tensor with shape [batch_size, channels, length] and applies two convolutional layers followed by two fully connected layers. The first convolutional layer has 16 output channels, a kernel size of 3, and a stride of 1. The second convolutional layer has 32 output channels, a kernel size of 3, and a stride of 1. Both convolutional layers are followed by ReLU activation functions. The output of the second convolutional layer is flattened to a 1D tensor, which is then passed through a fully connected layer with 1024 output features and a ReLU activation function. Finally, the output is passed through another fully connected layer with 256 output features, which serves as the output of the model.
-# Q: What is shape of the input tensor to the GuitarAmpSimulator model?
-# A: The input tensor to the GuitarAmpSimulator model should have a shape of [batch_size, 1, 256], where batch_size is the number of input samples and 256 is the length of the input signal.
-# Q: What is meant by input samples?
-# A: Input samples refer to the individual signals or waveforms that are fed into the model for processing. Each input sample corresponds to a single audio signal or waveform that the model will process and generate an output for.
 class GuitarAmpSimulator(nn.Module):
     def __init__(self):
         super(GuitarAmpSimulator, self).__init__()

@@ -10,7 +10,7 @@ from src.src_paths import DATA_DIR
 class DataProcessor:
 
     @staticmethod
-    def segment_audio(input_path, output_dir, segment_length=1024, overlap=0):
+    def segment_audio(input_path, output_dir, segment_length, overlap):
         """
         Segments an audio file into smaller chunks and saves them using pydub.
         
@@ -24,10 +24,14 @@ class DataProcessor:
             os.makedirs(output_dir)
 
         # Load AIFF file using pydub
+        # AudioSegment indices are in milliseconds
         audio: AudioSegment = AudioSegment.from_file(input_path)
 
         num_samples = len(audio)
         step_size = segment_length - overlap
+
+        print(segment_length)
+        print(step_size)
 
 
         for i in range(0, num_samples - segment_length + 1, step_size):
@@ -78,17 +82,17 @@ class DataProcessor:
         return {key: data[key].item() for key in data}
 
     @staticmethod
-    def create_and_save_segmented_wavs(clean_dir, fx_dir, segmented_clean_dir, segmented_fx_dir):
+    def create_and_save_segmented_wavs(clean_dir, fx_dir, segmented_clean_dir, segmented_fx_dir, segment_length, overlap):
         # segment all files in the directory
         for filename in os.listdir(clean_dir):
             if filename.endswith('.aif'):
                 input_path = os.path.join(clean_dir, filename)
-                DataProcessor.segment_audio(input_path, segmented_clean_dir)
+                DataProcessor.segment_audio(input_path, segmented_clean_dir, segment_length, overlap)
 
         for filename in os.listdir(fx_dir):
             if filename.endswith('.aif'):
                 input_path = os.path.join(fx_dir, filename)
-                DataProcessor.segment_audio(input_path, segmented_fx_dir)
+                DataProcessor.segment_audio(input_path, segmented_fx_dir, segment_length, overlap)
 
     def create_and_save_waveforms_dict(segmented_clean_dir, segmented_fx_dir, save_path):
         waveforms = DataProcessor.generate_waveform_dict(segmented_clean_dir, segmented_fx_dir)

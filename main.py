@@ -10,16 +10,21 @@ SRC_DIR = ROOT_DIR / "src"
 DATA_DIR = ROOT_DIR / "data"
 
 class Driver:
+    def __init__(self, sample_rate):
+        self.sample_rate = sample_rate
 
-    @staticmethod
-    def main():
+    def main(self):
         # Temporary usage -- will be moved to main.py
         clean_dir = str(DATA_DIR / "raw/clean_guitar_signals")
         fx_dir = str(DATA_DIR / "raw/fx_guitar_signals")
         segmented_clean_dir = str(DATA_DIR / "processed/segmented/segmented_clean")
         segmented_fx_dir = str(DATA_DIR / "processed/segmented/segmented_fx")
 
-        DataProcessor.create_and_save_segmented_wavs(clean_dir, fx_dir, segmented_clean_dir, segmented_fx_dir)
+        # audio continuity is preserved
+        segment_length = round((1/self.sample_rate) * 1000 * 1024)  # milliseconds, must be integer
+        overlap = segment_length // 2  # milliseconds, reducing perceived latency by 50%
+
+        DataProcessor.create_and_save_segmented_wavs(clean_dir, fx_dir, segmented_clean_dir, segmented_fx_dir, segment_length, overlap)
 
         seg_save_path = str(DATA_DIR / "processed/segmented/segmented.npz")  # this is the file name without extension?
         DataProcessor.create_and_save_waveforms_dict(segmented_clean_dir, segmented_fx_dir, seg_save_path)
@@ -38,6 +43,5 @@ class Driver:
         DataManager.split_and_save_data(train_dir, val_dir, test_dir)
 
 if __name__ == "__main__":
-    Driver.main()
-    
-
+    driver = Driver(sample_rate=48000)
+    driver.main()
