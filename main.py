@@ -10,8 +10,13 @@ SRC_DIR = ROOT_DIR / "src"
 DATA_DIR = ROOT_DIR / "data"
 
 class Driver:
-    def __init__(self, sample_rate):
-        self.sample_rate = sample_rate
+    def __init__(self, latency=10):
+        self.latency = latency  # milliseconds, used for AudioSegment slicing
+        self.overlap = self.latency // 2  # milliseconds, reducing perceived latency by 50%
+        self.actual_sample_window = int(self.latency / 1000 * 48000)  # samples, used for torch.nn.Conv1d
+        self.perceived_sample_window = int((self.latency - self.overlap) / 1000 * 48000)  # samples, used for torch.nn.Conv1d
+        print(f"Actual sample window: {self.actual_sample_window}")
+        print(f"Perceived sample window: {self.perceived_sample_window}")
 
     def main(self):
         # Temporary usage -- will be moved to main.py
@@ -20,11 +25,7 @@ class Driver:
         segmented_clean_dir = str(DATA_DIR / "processed/segmented/segmented_clean")
         segmented_fx_dir = str(DATA_DIR / "processed/segmented/segmented_fx")
 
-        # audio continuity is preserved
-        segment_length = round((1/self.sample_rate) * 1000 * 1024)  # milliseconds, must be integer
-        overlap = segment_length // 2  # milliseconds, reducing perceived latency by 50%
-
-        DataProcessor.create_and_save_segmented_wavs(clean_dir, fx_dir, segmented_clean_dir, segmented_fx_dir, segment_length, overlap)
+        DataProcessor.create_and_save_segmented_wavs(clean_dir, fx_dir, segmented_clean_dir, segmented_fx_dir, self.latency, self.overlap)
 
         seg_save_path = str(DATA_DIR / "processed/segmented/segmented.npz")  # this is the file name without extension?
         DataProcessor.create_and_save_waveforms_dict(segmented_clean_dir, segmented_fx_dir, seg_save_path)
@@ -43,5 +44,5 @@ class Driver:
         DataManager.split_and_save_data(train_dir, val_dir, test_dir)
 
 if __name__ == "__main__":
-    driver = Driver(sample_rate=48000)
+    driver = Driver(latency=10)
     driver.main()
