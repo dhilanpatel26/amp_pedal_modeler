@@ -30,10 +30,6 @@ class DataProcessor:
         num_samples = len(audio)
         step_size = segment_length - overlap
 
-        print(segment_length)
-        print(step_size)
-
-
         for i in range(0, num_samples - segment_length + 1, step_size):
             segment = audio[i:i + segment_length]
 
@@ -70,8 +66,12 @@ class DataProcessor:
         
     @staticmethod    
     def standard_normalization(waveform: np.ndarray) -> np.ndarray:
-        return waveform / np.max(np.abs(waveform))
-
+        # smart normalization to [-1, 1]
+        segment_max = np.max(np.abs(waveform))
+        if segment_max:
+            return waveform / segment_max
+        else: return waveform
+        
     @staticmethod
     def save_waveform_pairs(waveform_pairs, save_path) -> None:
         np.savez_compressed(save_path, **waveform_pairs)
