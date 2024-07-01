@@ -58,9 +58,9 @@ class DataProcessor:
 
     @staticmethod
     def get_numpy_waveform(audio_segment: AudioSegment) -> Tuple[np.ndarray, int]:  # TODO: check typing here
-        if audio_segment.channels == 2:  # stereo sound
-            audio_segment.set_channels(1)  # convert to mono
         waveform = np.array(audio_segment.get_array_of_samples())
+        if audio_segment.channels == 2:
+            waveform = np.mean(waveform.reshape(-1, 2), axis=1)  # convert stereo to mono while preserving number of samples
         waveform = DataProcessor.standard_normalization(waveform)  # normalizes arrays to [-1, 1]
         return waveform, audio_segment.frame_rate  # sampling rate should be 48000 Hz
         

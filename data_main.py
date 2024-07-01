@@ -48,5 +48,6 @@ if __name__ == "__main__":
     driver.main()  # no loss in data resolution
 
     # data waveforms are correctly set up as arrays of len 480
-    # training_waveforms = DataProcessor.load_waveform_pairs(str(DATA_DIR / "processed/train/train.npz"))
-    # print(len(training_waveforms[list(training_waveforms.keys())[-1]]["clean"]))
+    training_waveforms = DataProcessor.load_waveform_pairs(str(DATA_DIR / "processed/train/train.npz"))
+    print(len(training_waveforms[list(training_waveforms.keys())[0]]["clean"]))
+    print(len(training_waveforms[list(training_waveforms.keys())[0]]["amplified"]))
