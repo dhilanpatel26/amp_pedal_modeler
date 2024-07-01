@@ -6,40 +6,37 @@ from src.src_paths import DATA_DIR
 
 class Trainer:
 
-    def __init__(self, model: nn.Module, loss=None, optimizer=None):
-        self.model = model
-        if not loss:
-            loss = nn.MSELoss()
+    def __init__(self, model: nn.Module, criterion=None, optimizer=None):
+        if not criterion:
+            criterion = nn.MSELoss()
         if not optimizer:
             optimizer = optim.SGD(model.parameters(), lr=0.01)
-        self.loss = loss
+        self.criterion = criterion
         self.optimizer = optimizer
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        self.model = model.to(self.device)
 
-    # function to train the model on data in train.npz
-    def train(self):
-        # load data
-        data = DataProcessor.load_waveform_pairs(str(DATA_DIR / "processed/train/train.npz"))
-        # set model to training mode
-        self.model.train()
-        # iterate over data
-        for key in data.keys():
-            # get clean and amplified waveforms
-            clean = data[key]["clean"]
-            amplified = data[key]["amplified"]
-            # convert to torch tensors
-            clean = torch.tensor(clean, dtype=torch.float32).unsqueeze(0).unsqueeze(0).to(self.device)
-            amplified = torch.tensor(amplified, dtype=torch.float32).unsqueeze(0).unsqueeze(0).to(self.device)
-            # zero the gradients
-            self.optimizer.zero_grad()
+    def train_one_epoch(self, waveform_pairs):
+        for key in waveform_pairs:
+            clean_tensor = torch.tensor(waveform_pairs[key]['clean']).unsqueeze(0).unsqueeze(0).to(self.device)
+            fx_tensor = torch.tensor(waveform_pairs[key]['amplified']).unsqueeze(0).unsqueeze(0).to(self.device)
+            # print(f"{len(waveform_pairs[key]['amplified'])}")
+            # print(f"clean_tensor shape: {clean_tensor.shape}")
+            # print(f"fx_tensor shape: {fx_tensor.shape}")
+
             # forward pass
+            outputs = self.model(clean_tensor.float())
+            loss = self.criterion(outputs, fx_tensor)
 
-    # function to train the model for set number of epochs
-    def train_epochs(self, num_epochs=10):
-        for epoch in range(num_epochs):
-            self.train()
-            print(f"Epoch {epoch + 1} completed")
+            # backward pass
+            self.optimizer.zero_grad()
+            loss.backward()
+            self.optimizer.step()
 
-
-
-
+            return loss.item()
+            
+    def train_epochs(self, epochs, waveform_pairs):
+        self.model.train()  # set model to training mode
+        for epoch in range(epochs):
+            loss = self.train_one_epoch(waveform_pairs)
+            print(f"Epoch {epoch + 1} completed, Loss: {loss:.4f}")
