@@ -14,9 +14,9 @@ if __name__ == "__main__":
     input_length = 480
     model = GuitarAmpSimulator(input_length)
     criterion = nn.MSELoss()
-    optimizer = optim.SGD(model.parameters(), lr=0.001)
+    optimizer = optim.SGD(model.parameters(), lr=0.1)
     trainer = Trainer(model, criterion, optimizer)
 
     waveform_pairs = DataProcessor.load_waveform_pairs(DATA_DIR / "processed/train/train.npz")
     print("Training model...")
-    trainer.train_epochs(5, waveform_pairs)
+    trainer.train_epochs(100, waveform_pairs)

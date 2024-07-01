@@ -24,8 +24,12 @@ class Trainer:
             # print(f"clean_tensor shape: {clean_tensor.shape}")
             # print(f"fx_tensor shape: {fx_tensor.shape}")
 
+            # type conversion for consistency among tensors
+            clean_tensor = clean_tensor.float()
+            fx_tensor = fx_tensor.float()
+
             # forward pass
-            outputs = self.model(clean_tensor.float())
+            outputs = self.model(clean_tensor)
             loss = self.criterion(outputs, fx_tensor)
 
             # backward pass
