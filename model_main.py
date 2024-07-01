@@ -1,6 +1,7 @@
 import torch.nn as nn
 import torch.optim as optim
 from src.train import Trainer
+from src.evaluate import Evaluator
 from src.model import GuitarAmpSimulator
 from src.data_processing import DataProcessor
 from pathlib import Path
@@ -14,9 +15,16 @@ if __name__ == "__main__":
     input_length = 480
     model = GuitarAmpSimulator(input_length)
     criterion = nn.MSELoss()
-    optimizer = optim.SGD(model.parameters(), lr=0.1)
+    optimizer = optim.SGD(model.parameters(), lr=0.01)
+    
     trainer = Trainer(model, criterion, optimizer)
-
-    waveform_pairs = DataProcessor.load_waveform_pairs(DATA_DIR / "processed/train/train.npz")
     print("Training model...")
-    trainer.train_epochs(100, waveform_pairs)
+    waveform_pairs = DataProcessor.load_waveform_pairs(DATA_DIR / "processed/train/train.npz")
+    trainer.train_epochs(250, waveform_pairs)
+    print("Finished training.")
+
+    evaluator = Evaluator(model, criterion)
+    waveform_pairs = DataProcessor.load_waveform_pairs(DATA_DIR / "processed/test/test.npz")
+    print("Evaluating model...")
+    mse = evaluator.evaluate(waveform_pairs)
+    print(f"Mean squared error: {mse:.4f}")
