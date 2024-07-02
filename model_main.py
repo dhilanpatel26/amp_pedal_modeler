@@ -15,7 +15,7 @@ if __name__ == "__main__":
     input_length = 1440
     model = GuitarAmpSimulator(input_length)
     criterion = nn.MSELoss()
-    optimizer = optim.SGD(model.parameters(), lr=0.01)
+    optimizer = optim.SGD(model.parameters(), lr=0.05)
     
     trainer = Trainer(model, criterion, optimizer)
     print("Training model...")

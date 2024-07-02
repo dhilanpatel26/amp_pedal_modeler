@@ -15,7 +15,7 @@ class GuitarAmpSimulator(nn.Module):
         # dynamically sizing fully connected layers to match input length
         self.fc1 = nn.Linear(128 * (input_length // 8), 512)
         self.fc2 = nn.Linear(512, input_length)
-        self.dropout = nn.Dropout(0.5)
+        self.dropout = nn.Dropout(0.3)
 
     def forward(self, x):
         # apply convolutional layers with ReLU activation and max pooling
