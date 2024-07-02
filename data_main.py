@@ -10,7 +10,7 @@ SRC_DIR = ROOT_DIR / "src"
 DATA_DIR = ROOT_DIR / "data"
 
 class Driver:
-    def __init__(self, latency=10):
+    def __init__(self, latency=30):
         self.latency = latency  # milliseconds, used for AudioSegment slicing
         self.overlap = self.latency // 2  # milliseconds, reducing perceived latency by 50%
         self.actual_sample_window = int(self.latency / 1000 * 48000)  # samples, used for torch.nn.Conv1d
@@ -47,7 +47,6 @@ if __name__ == "__main__":
     driver = Driver()  # system calculates sample length based on target latency
     driver.main()  # no loss in data resolution
 
-    # data waveforms are correctly set up as arrays of len 480
-    training_waveforms = DataProcessor.load_waveform_pairs(str(DATA_DIR / "processed/train/train.npz"))
-    print(len(training_waveforms[list(training_waveforms.keys())[0]]["clean"]))
-    print(len(training_waveforms[list(training_waveforms.keys())[0]]["amplified"]))
+    # training_waveforms = DataProcessor.load_waveform_pairs(str(DATA_DIR / "processed/train/train.npz"))
+    # print(len(training_waveforms[list(training_waveforms.keys())[0]]["clean"]))
+    # print(len(training_waveforms[list(training_waveforms.keys())[0]]["amplified"]))

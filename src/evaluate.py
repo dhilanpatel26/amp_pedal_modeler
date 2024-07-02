@@ -13,13 +13,13 @@ class Evaluator:
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.model = model.to(self.device)
 
-    def evaluate(self, waveform_pairs):  # testing data
+    def evaluate(self, testing_pairs):  # testing data
         self.model.eval()  # set model to evaluation mode
-        mse = np.zeros(len(waveform_pairs))
+        mse = np.zeros(len(testing_pairs))
         with torch.no_grad():
-            for i, key in enumerate(waveform_pairs):
-                clean_tensor = torch.tensor(waveform_pairs[key]['clean']).unsqueeze(0).unsqueeze(0).to(self.device)
-                fx_tensor = torch.tensor(waveform_pairs[key]['amplified']).unsqueeze(0).unsqueeze(0).to(self.device)
+            for i, key in enumerate(testing_pairs):
+                clean_tensor = torch.tensor(testing_pairs[key]['clean']).unsqueeze(0).unsqueeze(0).to(self.device)
+                fx_tensor = torch.tensor(testing_pairs[key]['amplified']).unsqueeze(0).unsqueeze(0).to(self.device)
 
                 # type conversion for consistency among tensors
                 clean_tensor = clean_tensor.float()

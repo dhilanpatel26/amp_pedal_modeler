@@ -12,19 +12,20 @@ SRC_DIR = ROOT_DIR / "src"
 DATA_DIR = ROOT_DIR / "data"
 
 if __name__ == "__main__":
-    input_length = 480
+    input_length = 1440
     model = GuitarAmpSimulator(input_length)
     criterion = nn.MSELoss()
     optimizer = optim.SGD(model.parameters(), lr=0.01)
     
     trainer = Trainer(model, criterion, optimizer)
     print("Training model...")
-    waveform_pairs = DataProcessor.load_waveform_pairs(DATA_DIR / "processed/train/train.npz")
-    trainer.train_epochs(250, waveform_pairs)
+    training_pairs = DataProcessor.load_waveform_pairs(DATA_DIR / "processed/train/train.npz")
+    validation_pairs = DataProcessor.load_waveform_pairs(DATA_DIR / "processed/val/val.npz")
+    trainer.train_epochs(50, training_pairs, validation_pairs)
     print("Finished training.")
 
     evaluator = Evaluator(model, criterion)
-    waveform_pairs = DataProcessor.load_waveform_pairs(DATA_DIR / "processed/test/test.npz")
+    testing_pairs = DataProcessor.load_waveform_pairs(DATA_DIR / "processed/test/test.npz")
     print("Evaluating model...")
-    mse = evaluator.evaluate(waveform_pairs)
+    mse = evaluator.evaluate(testing_pairs)
     print(f"Mean squared error: {mse:.4f}")

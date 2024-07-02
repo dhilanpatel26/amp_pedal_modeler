@@ -10,7 +10,7 @@ from src.src_paths import DATA_DIR
 class DataProcessor:
 
     @staticmethod
-    def segment_audio(input_path, output_dir, segment_length, overlap):
+    def segment_audio(input_path, output_dir, segment_length, overlap, take):
         """
         Segments an audio file into smaller chunks and saves them using pydub.
         
@@ -37,7 +37,7 @@ class DataProcessor:
             start_time = i
             end_time = i + segment_length
 
-            segment_path = os.path.join(output_dir, f'segment_{start_time}_{end_time}.wav')
+            segment_path = os.path.join(output_dir, f'take_{take}_segment_{start_time}_{end_time}.wav')
 
             # Export segment using pydub
             segment.export(segment_path, format='wav')
@@ -86,13 +86,15 @@ class DataProcessor:
         # segment all files in the directory
         for filename in os.listdir(clean_dir):
             if filename.endswith('.aif'):
+                take = filename[0]
                 input_path = os.path.join(clean_dir, filename)
-                DataProcessor.segment_audio(input_path, segmented_clean_dir, segment_length, overlap)
+                DataProcessor.segment_audio(input_path, segmented_clean_dir, segment_length, overlap, take)
 
         for filename in os.listdir(fx_dir):
             if filename.endswith('.aif'):
+                take = filename[0]
                 input_path = os.path.join(fx_dir, filename)
-                DataProcessor.segment_audio(input_path, segmented_fx_dir, segment_length, overlap)
+                DataProcessor.segment_audio(input_path, segmented_fx_dir, segment_length, overlap, take)
 
     def create_and_save_waveforms_dict(segmented_clean_dir, segmented_fx_dir, save_path):
         waveforms = DataProcessor.generate_waveform_dict(segmented_clean_dir, segmented_fx_dir)
